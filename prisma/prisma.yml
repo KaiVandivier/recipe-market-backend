@@ -1,0 +1,5 @@
+endpoint: https://us1.prisma.sh/kpvandivier-c3a1aa/recipe-market-backend/dev
+datamodel: datamodel.graphql
+hooks:
+  post-deploy:
+    - graphql get-schema -p prisma
