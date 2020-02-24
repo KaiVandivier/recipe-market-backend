@@ -13,4 +13,4 @@ const server = new GraphQLServer({
   context: req => ({ ...req, db })
 })
 
-server.start((details) => console.log(`Server is running on ${details.port}`))
+server.start((details) => console.log(`--- Server is running on localhost:${details.port} ---`))
