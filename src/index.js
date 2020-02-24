@@ -1,12 +1,12 @@
 const { GraphQLServer } = require("graphql-yoga");
 require("dotenv").config();
 const Query = require("./resolvers/Query");
-// const Mutation = require("./resolvers/Mutation");
+const Mutation = require("./resolvers/Mutation");
 const db = require("./db");
 
 const server = new GraphQLServer({
   typeDefs: "src/schema.graphql",
-  resolvers: { Query, /* Mutation */ },
+  resolvers: { Query, Mutation },
   resolverValidationOptions: {
     requireResolversForResolveType: false
   },
