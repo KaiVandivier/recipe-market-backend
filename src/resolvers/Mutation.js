@@ -1,3 +1,4 @@
+// TODO: Remove console.logs
 
 const Mutation = {
   async createUser(_, { name, email }, ctx, info) {
@@ -9,6 +10,16 @@ const Mutation = {
     }, info);
     console.log(res);
     return res;
+  },
+  async createItem(_, args, ctx, info) {
+    // TODO: Check if user has permissions to create
+    const res = await ctx.db.mutation.createItem({
+      data: {
+        ...args
+      }
+    }, info)
+    console.log(res);
+    return res
   }
 };
 
