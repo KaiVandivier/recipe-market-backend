@@ -1,8 +1,8 @@
 # import * from "./generated/prisma.graphql"
 
 type Query {
-  description: String
   user(id: ID!): User
+  items(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, first: Int): [Item]!
 }
 
 type Mutation {
