@@ -6,7 +6,9 @@ const Query = {
       where: { id }
     }, info)
   },
-  items: forwardTo("db")
+  item: forwardTo("db"),
+  items: forwardTo("db"),
+  itemsConnection: forwardTo("db"),
 };
 
 module.exports = Query;
