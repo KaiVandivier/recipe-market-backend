@@ -2,10 +2,14 @@
 
 type Query {
   user(id: ID!): User
+  item(where: ItemWhereUniqueInput!): Item
   items(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, first: Int): [Item]!
+  itemsConnection(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ItemConnection!
 }
 
 type Mutation {
   createUser(name: String!, email: String!): User!
   createItem(title: String!, description: String!, price: Int!, image: String!, largeImage: String!): Item!
+  editItem(id: ID!, title: String!, description: String!, price: Int!, image: String!, largeImage: String!): Item!
+  deleteItem(id: ID!): Item
 }
