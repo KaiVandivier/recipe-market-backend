@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^4.0.1",
     "cookie-parser": "^1.4.4",
     "dotenv": "^8.2.0",
     "graphql-cli": "^3.0.14",
