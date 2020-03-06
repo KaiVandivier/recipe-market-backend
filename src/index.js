@@ -1,4 +1,5 @@
 const { GraphQLServer } = require("graphql-yoga");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 const Query = require("./resolvers/Query");
 const Mutation = require("./resolvers/Mutation");
@@ -12,6 +13,9 @@ const server = new GraphQLServer({
   },
   context: req => ({ ...req, db })
 })
+
+// Middleware for cookies
+server.express.use(cookieParser());
 
 server.start({ cors: {
   credentials: true,
