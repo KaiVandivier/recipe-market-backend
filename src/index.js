@@ -1,5 +1,6 @@
 const { GraphQLServer } = require("graphql-yoga");
 const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const Query = require("./resolvers/Query");
 const Mutation = require("./resolvers/Mutation");
@@ -16,6 +17,16 @@ const server = new GraphQLServer({
 
 // Middleware for cookies
 server.express.use(cookieParser());
+
+// Middleware to decode JWT from cookies to get logged-in user's ID
+server.express.use((req, res, next) => {
+  const { token } = req.cookies;
+  if (token) {
+    const { userId } = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = userId;
+  }
+  next();
+})
 
 server.start({ cors: {
   credentials: true,
