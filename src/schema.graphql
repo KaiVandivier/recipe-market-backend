@@ -8,8 +8,8 @@ type Query {
 }
 
 type Mutation {
-  createUser(name: String!, email: String!): User!
   createItem(title: String!, description: String!, price: Int!, image: String!, largeImage: String!): Item!
   editItem(id: ID!, title: String!, description: String!, price: Int!, image: String!, largeImage: String!): Item!
   deleteItem(id: ID!): Item
+  createUser(name: String!, email: String!, password: String!): User!
 }
