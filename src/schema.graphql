@@ -5,7 +5,7 @@ type Query {
   item(where: ItemWhereUniqueInput!): Item
   items(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, first: Int): [Item]!
   itemsConnection(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ItemConnection!
-  currentUser: User!
+  currentUser: User
 }
 
 type Mutation {
@@ -13,4 +13,5 @@ type Mutation {
   editItem(id: ID!, title: String!, description: String!, price: Int!, image: String!, largeImage: String!): Item!
   deleteItem(id: ID!): Item
   createUser(name: String!, email: String!, password: String!): User!
+  signin(email: String!, password: String!): User
 }
