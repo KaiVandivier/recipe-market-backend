@@ -10,7 +10,11 @@ const Query = {
   items: forwardTo("db"),
   itemsConnection: forwardTo("db"),
   async currentUser(_, args, ctx, info) {
-    console.log(ctx.request.userId);
+    if (!ctx.request.userId) return null;
+    const user = await ctx.db.query.user({
+      where: { id: ctx.request.userId }
+    }, info);
+    return user;
   }
 };
 
