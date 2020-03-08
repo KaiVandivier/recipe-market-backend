@@ -46,15 +46,36 @@ const Mutation = {
         permissions: { set: ["USER"] },
       }
     }, info);
-    // TODO: Make & sign a jwt for the user; add as cookie
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: 365 * 24 * 60 * 60 * 1000
-    });
+    // Make & sign a jwt for the user; add as cookie
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
     // add jwt to cookie on ctx.response.cookies
     ctx.response.cookie("token", token, {
       httpOnly: true,
       maxAge: 365 * 24 * 60 * 60 * 1000
     });
+    return user;
+  },
+  async signin(_, args, ctx, info) {
+    // Downcase email
+    const email = args.email.toLowerCase();
+    // find user by email
+    const [user] = await ctx.db.query.users({
+      where: {
+        email
+      }
+    }, `{ id email password }`);
+    if (!user) throw new Error(`No user found for email ${email}`);
+    // Compare password using bcrypt
+    const passwordMatch = await bcrypt.compare(args.password, user.password)
+    // Hit DB to search for email/password combo?
+    if (!passwordMatch) throw new Error("Incorrect password.");
+    // If successful, sign JWT and set cookie
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
+    ctx.response.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 365 * 24 * 60 * 60 * 1000
+    });
+    // return found user
     return user;
   }
 };
