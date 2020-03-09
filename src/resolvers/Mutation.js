@@ -59,7 +59,7 @@ const Mutation = {
     // Downcase email
     const email = args.email.toLowerCase();
     // find user by email
-    const [user] = await ctx.db.query.users({
+    const user = await ctx.db.query.user({
       where: {
         email
       }
@@ -79,7 +79,10 @@ const Mutation = {
     return user;
   },
   async signout(_, args, ctx, info) {
-    ctx.request.clearCookie("token");
+    console.log("Got here");
+    console.log(ctx.response.cookie);
+    ctx.response.clearCookie("token");
+    console.log(ctx.response.cookie);
     return { message: "Signed out successfully. Goodbye!" };
   }
 };
