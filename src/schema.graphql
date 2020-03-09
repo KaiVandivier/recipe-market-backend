@@ -19,4 +19,6 @@ type Mutation {
   createUser(name: String!, email: String!, password: String!): User!
   signin(email: String!, password: String!): User
   signout: SuccessMessage
+  requestPasswordReset(email: String!): SuccessMessage
+  resetPassword(resetToken: String!, password: String!): User! #confirm password?
 }

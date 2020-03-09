@@ -1,5 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { randomBytes } = require("crypto");
+const { promisify } = require("util");
 
 // TODO: Remove console.logs
 
@@ -79,11 +81,63 @@ const Mutation = {
     return user;
   },
   async signout(_, args, ctx, info) {
-    console.log("Got here");
-    console.log(ctx.response.cookie);
     ctx.response.clearCookie("token");
-    console.log(ctx.response.cookie);
     return { message: "Signed out successfully. Goodbye!" };
+  },
+  async requestPasswordReset(_, args, ctx, info) {
+    // Find user based on email
+    const email = args.email.toLowerCase();
+    const user = await ctx.db.query.user({ where: { email } });
+    if (!user) throw new Error("No user found for that email.");
+    // If found, generate a reset token that expires in 1 hour
+    const resetToken = (await promisify(randomBytes)(20)).toString("hex");
+    const resetTokenExpiry = Date.now() + 60 * 60 * 1000;
+    // Use `updateUser` to add new token and expiry
+    const res = await ctx.db.mutation.updateUser({
+      data: {
+        resetToken,
+        resetTokenExpiry
+      },
+      where: {
+        id: user.id
+      }
+    });
+    // TODO: Send email w/ link to reset page
+    // Return success message
+    return { message: "Success! An email has been sent with a link to reset your password." };
+  },
+  async resetPassword(_, args, ctx, info) {
+    // Check if passwords match?
+
+    // Find user based on reset token and expiry
+    const [user] = await ctx.db.query.users({
+      where: {
+        resetToken: args.resetToken,
+        resetTokenExpiry_gte: Date.now()
+      }
+    });
+    if (!user) throw new Error("That reset token is either expired or invalid.");
+    // Hash new password
+    const password = await bcrypt.hash(args.password, 10);
+    // If successful, update password and remove resetToken fields
+    const newUser = await ctx.db.mutation.updateUser({
+      where: {
+        id: user.id
+      },
+      data: {
+        password,
+        resetToken: null,
+        resetTokenExpiry: null
+      }
+    }, info);
+    // Log them in with a JWT and a cookie
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
+    ctx.response.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 365 * 24 * 60 * 60 * 1000
+    })
+    // return the user
+    return newUser;
   }
 };
 
