@@ -77,6 +77,10 @@ const Mutation = {
     });
     // return found user
     return user;
+  },
+  async signout(_, args, ctx, info) {
+    ctx.request.clearCookie("token");
+    return { message: "Signed out successfully. Goodbye!" };
   }
 };
 
