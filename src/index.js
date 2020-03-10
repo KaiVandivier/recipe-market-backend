@@ -19,11 +19,13 @@ const server = new GraphQLServer({
 server.express.use(cookieParser());
 
 // Middleware to decode JWT from cookies to get logged-in user's ID
-server.express.use((req, res, next) => {
+server.express.use(async (req, res, next) => {
   const { token } = req.cookies;
   if (token) {
     const { userId } = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await db.query.user({ where: { id: userId } }, `{ id, permissions, email, name }`);
     req.userId = userId;
+    req.user = user;
   }
   next();
 })
