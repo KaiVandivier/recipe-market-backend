@@ -3,23 +3,29 @@ const jwt = require("jsonwebtoken");
 const { randomBytes } = require("crypto");
 const { promisify } = require("util");
 const { transport, mailTemplate } = require("../mail");
+const { checkPermissions } = require("../utils");
 
 // TODO: Remove console.logs
 
 const Mutation = {
   async createItem(_, args, ctx, info) {
-    // TODO: Check if user has permissions to create
+    // TODO: Check if user is logged in, has permissions to create
+    if (!ctx.request.userId) throw new Error("You must be logged in to create an item");
+    // Check permissions
+    checkPermissions(ctx.request.user, ["ADMIN", "ITEM_CREATE"]);
+    // Make DB call
     const res = await ctx.db.mutation.createItem(
       {
         data: {
-          ...args
+          ...args,
+          user: { connect: { id: ctx.request.userId}}
         }
       },
       info
     );
-    console.log(res);
     return res;
   },
+
   async editItem(_, args, ctx, info) {
     // TODO: Check for permissions?
     const updates = { ...args };
@@ -35,7 +41,9 @@ const Mutation = {
     console.log(res);
     return res;
   },
+
   async deleteItem(_, { id }, ctx, info) {
+    // TODO: Double check permission
     const res = await ctx.db.mutation.deleteItem(
       {
         where: { id }
@@ -44,6 +52,7 @@ const Mutation = {
     );
     return res;
   },
+
   async createUser(_, args, ctx, info) {
     // downcase email
     const email = args.email.toLowerCase();
@@ -70,6 +79,7 @@ const Mutation = {
     });
     return user;
   },
+
   async signin(_, args, ctx, info) {
     // Downcase email
     const email = args.email.toLowerCase();
@@ -96,6 +106,7 @@ const Mutation = {
     // return found user
     return user;
   },
+
   async signout(_, args, ctx, info) {
     ctx.response.clearCookie("token");
     return { message: "Signed out successfully. Goodbye!" };
@@ -134,6 +145,7 @@ const Mutation = {
         "Success! An email has been sent with a link to reset your password."
     };
   },
+  
   async resetPassword(_, args, ctx, info) {
     // Check if passwords match?
 
