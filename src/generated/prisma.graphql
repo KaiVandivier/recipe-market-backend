@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/kpvandivier-c3a1aa/recipe-market-backend/dev
-# timestamp: Mon Mar 09 2020 18:06:03 GMT-0700 (Pacific Daylight Time)
+# timestamp: Wed Mar 11 2020 21:05:06 GMT-0700 (Pacific Daylight Time)
 
 type AggregateItem {
   count: Int!
@@ -421,6 +421,7 @@ enum Permission {
   ADMIN
   USER
   ITEM_CREATE
+  ITEM_UPDATE
   ITEM_DELETE
   PERMISSION_UPDATE
 }
