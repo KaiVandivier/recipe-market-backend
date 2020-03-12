@@ -9,8 +9,9 @@ const { checkPermissions } = require("../utils");
 
 const Mutation = {
   async createItem(_, args, ctx, info) {
-    // TODO: Check if user is logged in, has permissions to create
-    if (!ctx.request.userId) throw new Error("You must be logged in to create an item");
+    // Check if user is logged in, has permissions to create
+    if (!ctx.request.userId)
+      throw new Error("You must be logged in to create an item");
     // Check permissions
     checkPermissions(ctx.request.user, ["ADMIN", "ITEM_CREATE"]);
     // Make DB call
@@ -18,7 +19,7 @@ const Mutation = {
       {
         data: {
           ...args,
-          user: { connect: { id: ctx.request.userId}}
+          user: { connect: { id: ctx.request.userId } }
         }
       },
       info
@@ -27,10 +28,19 @@ const Mutation = {
   },
 
   async editItem(_, args, ctx, info) {
-    // TODO: Check for permissions?
+    // Check if user is logged in, has permissions to create
+    if (!ctx.request.userId) throw new Error("You must be logged in");
+    // Check permissions
+    const item = await ctx.db.query.item({ where: { id: args.id } }, `{ user { id } }`);
+    const permissionsMatched = user.permissions.some(permission =>
+      ["ADMIN", "ITEM_UPDATE"].includes(permission)
+    );
+    const ownsItem = ctx.request.userId === item.user.id;
+    if (!permissionsMatched && !ownsItem)
+      throw new Error("You don't have permission to edit this item!");
+
     const updates = { ...args };
     delete updates.id;
-
     const res = await ctx.db.mutation.updateItem(
       {
         data: updates,
@@ -43,7 +53,17 @@ const Mutation = {
   },
 
   async deleteItem(_, { id }, ctx, info) {
-    // TODO: Double check permission
+    // Check if user is logged in, has permissions to create
+    if (!ctx.request.userId) throw new Error("You must be logged in");
+    // Check permissions
+    const item = await ctx.db.query.item({ where: { id } }, `{ user { id } }`);
+    const permissionsMatched = user.permissions.some(permission =>
+      ["ADMIN", "ITEM_DELETE"].includes(permission)
+    );
+    const ownsItem = ctx.request.userId === item.user.id;
+    if (!permissionsMatched && !ownsItem)
+      throw new Error("You don't have permission to delete this item!");
+
     const res = await ctx.db.mutation.deleteItem(
       {
         where: { id }
@@ -186,13 +206,17 @@ const Mutation = {
 
   async updatePermissions(_, args, ctx, info) {
     // Check if user is logged in and has permissions
-    if (!ctx.request.userId) throw new Error("You must be logged in to do this.");
+    if (!ctx.request.userId)
+      throw new Error("You must be logged in to do this.");
     checkPermissions(ctx.request.user, ["ADMIN", "PERMISSION_UPDATE"]);
     // If all is good, hit DB with update
-    const user = await ctx.db.mutation.updateUser({
-      where: { id: args.id },
-      data: { permissions: { set: args.permissions }}
-    }, info);
+    const user = await ctx.db.mutation.updateUser(
+      {
+        where: { id: args.id },
+        data: { permissions: { set: args.permissions } }
+      },
+      info
+    );
     return user;
   }
 };
