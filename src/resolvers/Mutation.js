@@ -145,7 +145,7 @@ const Mutation = {
         "Success! An email has been sent with a link to reset your password."
     };
   },
-  
+
   async resetPassword(_, args, ctx, info) {
     // Check if passwords match?
 
@@ -182,6 +182,18 @@ const Mutation = {
     });
     // return the user
     return newUser;
+  },
+
+  async updatePermissions(_, args, ctx, info) {
+    // Check if user is logged in and has permissions
+    if (!ctx.request.userId) throw new Error("You must be logged in to do this.");
+    checkPermissions(ctx.request.user, ["ADMIN", "PERMISSION_UPDATE"]);
+    // If all is good, hit DB with update
+    const user = await ctx.db.mutation.updateUser({
+      where: { id: args.id },
+      data: { permissions: { set: args.permissions }}
+    }, info);
+    return user;
   }
 };
 

@@ -29,4 +29,5 @@ type Mutation {
   signout: SuccessMessage
   requestPasswordReset(email: String!): SuccessMessage
   resetPassword(resetToken: String!, password: String!): User! #confirm password?
+  updatePermissions(id: ID!, permissions: [Permission]!): User!
 }
