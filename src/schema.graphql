@@ -22,7 +22,7 @@ type Query {
 
 type Mutation {
   createItem(title: String!, description: String!, price: Int!, image: String!, largeImage: String!): Item!
-  editItem(id: ID!, title: String!, description: String!, price: Int!, image: String!, largeImage: String!): Item!
+  editItem(id: ID!, title: String, description: String, price: Int): Item!
   deleteItem(id: ID!): Item
   createUser(name: String!, email: String!, password: String!): User!
   signin(email: String!, password: String!): User
