@@ -30,8 +30,10 @@ const Mutation = {
   async editItem(_, args, ctx, info) {
     // Check if user is logged in, has permissions to create
     if (!ctx.request.userId) throw new Error("You must be logged in");
-    // Check permissions
+    // Get user and item
+    const { user } = ctx.request;
     const item = await ctx.db.query.item({ where: { id: args.id } }, `{ user { id } }`);
+    // Check permissions
     const permissionsMatched = user.permissions.some(permission =>
       ["ADMIN", "ITEM_UPDATE"].includes(permission)
     );
@@ -55,8 +57,10 @@ const Mutation = {
   async deleteItem(_, { id }, ctx, info) {
     // Check if user is logged in, has permissions to create
     if (!ctx.request.userId) throw new Error("You must be logged in");
-    // Check permissions
+    // Get User and item
+    const { user } = ctx.request;
     const item = await ctx.db.query.item({ where: { id } }, `{ user { id } }`);
+    // Check permissions
     const permissionsMatched = user.permissions.some(permission =>
       ["ADMIN", "ITEM_DELETE"].includes(permission)
     );
