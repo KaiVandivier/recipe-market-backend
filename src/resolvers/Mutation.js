@@ -222,6 +222,34 @@ const Mutation = {
       info
     );
     return user;
+  },
+
+  async addToCart(_, { itemId, quantity }, ctx, info) {
+    // Check if user is logged in
+    if (!ctx.request.user) throw new Error("You must be logged in!");
+    // Check to see if a cart item already exists for this user and item
+    const [existingCartItem] = await ctx.db.query.cartItems({
+      where: {
+        user: { id: ctx.request.userId },
+        item: { id: itemId }
+      }
+    });
+    // if the user already has a cart item, increment the quantity
+    if (existingCartItem) {
+      return ctx.db.mutation.updateCartItem({
+        where: { id: existingCartItem.id },
+        data: { quantity: existingCartItem.quantity + quantity }
+      }, info);
+    }
+
+    // If not, Make the CartItem for the user
+    return ctx.db.mutation.createCartItem({
+      data: {
+        quantity,
+        item: { connect: { id: itemId } },
+        user: { connect: { id: ctx.request.userId } }
+      }
+    }, info);
   }
 };
 
