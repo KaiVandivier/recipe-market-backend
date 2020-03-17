@@ -250,6 +250,18 @@ const Mutation = {
         user: { connect: { id: ctx.request.userId } }
       }
     }, info);
+  },
+
+  async removeFromCart(_, { id }, ctx, info) {
+    // Check to see if the user is logged in
+    if (!ctx.request.userId) throw new Error("You must be logged in to do that!");
+    // Check if cart item exists
+    const cartItem = await ctx.db.query.cartItem({ where: { id }}, `{ id user { id } }`);
+    if (!cartItem) throw new Error("That item doesn't exist!");
+    // Check if user owns that item
+    if (cartItem.user.id !== ctx.request.userId) throw new Error("You can't do that!");
+    // If all is good, hit DB
+    return ctx.db.mutation.deleteCartItem({ where: { id }}, info);
   }
 };
 

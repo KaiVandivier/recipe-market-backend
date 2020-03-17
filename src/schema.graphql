@@ -32,4 +32,5 @@ type Mutation {
   resetPassword(resetToken: String!, password: String!): User! #confirm password?
   updatePermissions(id: ID!, permissions: [Permission]!): User!
   addToCart(itemId: ID!, quantity: Int = 1): CartItem!
+  removeFromCart(id: ID!): CartItem
 }
