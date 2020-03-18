@@ -34,3 +34,19 @@ type CartItem {
   item: Item
   user: User!
 }
+
+type Recipe {
+  id: ID! @id
+  user: User!
+  title: String!
+  description: String
+  instructions: String!
+  ingredients: [RecipeItem!]!
+}
+
+type RecipeItem {
+  id: ID! @id
+  item: Item
+  quantity: Float! @default(value: 1.0)
+  recipe: Recipe!
+}

@@ -1,11 +1,19 @@
 # source: https://us1.prisma.sh/kpvandivier-c3a1aa/recipe-market-backend/dev
-# timestamp: Tue Mar 17 2020 13:37:26 GMT-0700 (Pacific Daylight Time)
+# timestamp: Wed Mar 18 2020 11:48:09 GMT-0700 (Pacific Daylight Time)
 
 type AggregateCartItem {
   count: Int!
 }
 
 type AggregateItem {
+  count: Int!
+}
+
+type AggregateRecipe {
+  count: Int!
+}
+
+type AggregateRecipeItem {
   count: Int!
 }
 
@@ -701,23 +709,35 @@ scalar Long
 
 type Mutation {
   createCartItem(data: CartItemCreateInput!): CartItem!
-  createItem(data: ItemCreateInput!): Item!
+  createRecipe(data: RecipeCreateInput!): Recipe!
+  createRecipeItem(data: RecipeItemCreateInput!): RecipeItem!
   createUser(data: UserCreateInput!): User!
+  createItem(data: ItemCreateInput!): Item!
   updateCartItem(data: CartItemUpdateInput!, where: CartItemWhereUniqueInput!): CartItem
-  updateItem(data: ItemUpdateInput!, where: ItemWhereUniqueInput!): Item
+  updateRecipe(data: RecipeUpdateInput!, where: RecipeWhereUniqueInput!): Recipe
+  updateRecipeItem(data: RecipeItemUpdateInput!, where: RecipeItemWhereUniqueInput!): RecipeItem
   updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  updateItem(data: ItemUpdateInput!, where: ItemWhereUniqueInput!): Item
   deleteCartItem(where: CartItemWhereUniqueInput!): CartItem
-  deleteItem(where: ItemWhereUniqueInput!): Item
+  deleteRecipe(where: RecipeWhereUniqueInput!): Recipe
+  deleteRecipeItem(where: RecipeItemWhereUniqueInput!): RecipeItem
   deleteUser(where: UserWhereUniqueInput!): User
+  deleteItem(where: ItemWhereUniqueInput!): Item
   upsertCartItem(where: CartItemWhereUniqueInput!, create: CartItemCreateInput!, update: CartItemUpdateInput!): CartItem!
-  upsertItem(where: ItemWhereUniqueInput!, create: ItemCreateInput!, update: ItemUpdateInput!): Item!
+  upsertRecipe(where: RecipeWhereUniqueInput!, create: RecipeCreateInput!, update: RecipeUpdateInput!): Recipe!
+  upsertRecipeItem(where: RecipeItemWhereUniqueInput!, create: RecipeItemCreateInput!, update: RecipeItemUpdateInput!): RecipeItem!
   upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
+  upsertItem(where: ItemWhereUniqueInput!, create: ItemCreateInput!, update: ItemUpdateInput!): Item!
   updateManyCartItems(data: CartItemUpdateManyMutationInput!, where: CartItemWhereInput): BatchPayload!
-  updateManyItems(data: ItemUpdateManyMutationInput!, where: ItemWhereInput): BatchPayload!
+  updateManyRecipes(data: RecipeUpdateManyMutationInput!, where: RecipeWhereInput): BatchPayload!
+  updateManyRecipeItems(data: RecipeItemUpdateManyMutationInput!, where: RecipeItemWhereInput): BatchPayload!
   updateManyUsers(data: UserUpdateManyMutationInput!, where: UserWhereInput): BatchPayload!
+  updateManyItems(data: ItemUpdateManyMutationInput!, where: ItemWhereInput): BatchPayload!
   deleteManyCartItems(where: CartItemWhereInput): BatchPayload!
-  deleteManyItems(where: ItemWhereInput): BatchPayload!
+  deleteManyRecipes(where: RecipeWhereInput): BatchPayload!
+  deleteManyRecipeItems(where: RecipeItemWhereInput): BatchPayload!
   deleteManyUsers(where: UserWhereInput): BatchPayload!
+  deleteManyItems(where: ItemWhereInput): BatchPayload!
 }
 
 enum MutationType {
@@ -758,14 +778,20 @@ enum Permission {
 
 type Query {
   cartItems(where: CartItemWhereInput, orderBy: CartItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [CartItem]!
-  items(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Item]!
+  recipes(where: RecipeWhereInput, orderBy: RecipeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Recipe]!
+  recipeItems(where: RecipeItemWhereInput, orderBy: RecipeItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeItem]!
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
+  items(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Item]!
   cartItem(where: CartItemWhereUniqueInput!): CartItem
-  item(where: ItemWhereUniqueInput!): Item
+  recipe(where: RecipeWhereUniqueInput!): Recipe
+  recipeItem(where: RecipeItemWhereUniqueInput!): RecipeItem
   user(where: UserWhereUniqueInput!): User
+  item(where: ItemWhereUniqueInput!): Item
   cartItemsConnection(where: CartItemWhereInput, orderBy: CartItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): CartItemConnection!
-  itemsConnection(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ItemConnection!
+  recipesConnection(where: RecipeWhereInput, orderBy: RecipeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RecipeConnection!
+  recipeItemsConnection(where: RecipeItemWhereInput, orderBy: RecipeItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): RecipeItemConnection!
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  itemsConnection(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ItemConnection!
 
   """Fetches an object given its ID"""
   node(
@@ -774,10 +800,621 @@ type Query {
   ): Node
 }
 
+type Recipe implements Node {
+  id: ID!
+  user: User!
+  title: String!
+  description: String
+  instructions: String!
+  ingredients(where: RecipeItemWhereInput, orderBy: RecipeItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeItem!]
+}
+
+"""A connection to a list of items."""
+type RecipeConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [RecipeEdge]!
+  aggregate: AggregateRecipe!
+}
+
+input RecipeCreateInput {
+  id: ID
+  title: String!
+  description: String
+  instructions: String!
+  user: UserCreateOneInput!
+  ingredients: RecipeItemCreateManyWithoutRecipeInput
+}
+
+input RecipeCreateOneWithoutIngredientsInput {
+  create: RecipeCreateWithoutIngredientsInput
+  connect: RecipeWhereUniqueInput
+}
+
+input RecipeCreateWithoutIngredientsInput {
+  id: ID
+  title: String!
+  description: String
+  instructions: String!
+  user: UserCreateOneInput!
+}
+
+"""An edge in a connection."""
+type RecipeEdge {
+  """The item at the end of the edge."""
+  node: Recipe!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+type RecipeItem implements Node {
+  id: ID!
+  item: Item
+  quantity: Float!
+  recipe: Recipe!
+}
+
+"""A connection to a list of items."""
+type RecipeItemConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [RecipeItemEdge]!
+  aggregate: AggregateRecipeItem!
+}
+
+input RecipeItemCreateInput {
+  id: ID
+  quantity: Float
+  item: ItemCreateOneInput
+  recipe: RecipeCreateOneWithoutIngredientsInput!
+}
+
+input RecipeItemCreateManyWithoutRecipeInput {
+  create: [RecipeItemCreateWithoutRecipeInput!]
+  connect: [RecipeItemWhereUniqueInput!]
+}
+
+input RecipeItemCreateWithoutRecipeInput {
+  id: ID
+  quantity: Float
+  item: ItemCreateOneInput
+}
+
+"""An edge in a connection."""
+type RecipeItemEdge {
+  """The item at the end of the edge."""
+  node: RecipeItem!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum RecipeItemOrderByInput {
+  id_ASC
+  id_DESC
+  quantity_ASC
+  quantity_DESC
+}
+
+type RecipeItemPreviousValues {
+  id: ID!
+  quantity: Float!
+}
+
+input RecipeItemScalarWhereInput {
+  """Logical AND on all given filters."""
+  AND: [RecipeItemScalarWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [RecipeItemScalarWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [RecipeItemScalarWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  quantity: Float
+
+  """All values that are not equal to given value."""
+  quantity_not: Float
+
+  """All values that are contained in given list."""
+  quantity_in: [Float!]
+
+  """All values that are not contained in given list."""
+  quantity_not_in: [Float!]
+
+  """All values less than the given value."""
+  quantity_lt: Float
+
+  """All values less than or equal the given value."""
+  quantity_lte: Float
+
+  """All values greater than the given value."""
+  quantity_gt: Float
+
+  """All values greater than or equal the given value."""
+  quantity_gte: Float
+}
+
+type RecipeItemSubscriptionPayload {
+  mutation: MutationType!
+  node: RecipeItem
+  updatedFields: [String!]
+  previousValues: RecipeItemPreviousValues
+}
+
+input RecipeItemSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [RecipeItemSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [RecipeItemSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [RecipeItemSubscriptionWhereInput!]
+
+  """The subscription event gets dispatched when it's listed in mutation_in"""
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: RecipeItemWhereInput
+}
+
+input RecipeItemUpdateInput {
+  quantity: Float
+  item: ItemUpdateOneInput
+  recipe: RecipeUpdateOneRequiredWithoutIngredientsInput
+}
+
+input RecipeItemUpdateManyDataInput {
+  quantity: Float
+}
+
+input RecipeItemUpdateManyMutationInput {
+  quantity: Float
+}
+
+input RecipeItemUpdateManyWithoutRecipeInput {
+  create: [RecipeItemCreateWithoutRecipeInput!]
+  connect: [RecipeItemWhereUniqueInput!]
+  set: [RecipeItemWhereUniqueInput!]
+  disconnect: [RecipeItemWhereUniqueInput!]
+  delete: [RecipeItemWhereUniqueInput!]
+  update: [RecipeItemUpdateWithWhereUniqueWithoutRecipeInput!]
+  updateMany: [RecipeItemUpdateManyWithWhereNestedInput!]
+  deleteMany: [RecipeItemScalarWhereInput!]
+  upsert: [RecipeItemUpsertWithWhereUniqueWithoutRecipeInput!]
+}
+
+input RecipeItemUpdateManyWithWhereNestedInput {
+  where: RecipeItemScalarWhereInput!
+  data: RecipeItemUpdateManyDataInput!
+}
+
+input RecipeItemUpdateWithoutRecipeDataInput {
+  quantity: Float
+  item: ItemUpdateOneInput
+}
+
+input RecipeItemUpdateWithWhereUniqueWithoutRecipeInput {
+  where: RecipeItemWhereUniqueInput!
+  data: RecipeItemUpdateWithoutRecipeDataInput!
+}
+
+input RecipeItemUpsertWithWhereUniqueWithoutRecipeInput {
+  where: RecipeItemWhereUniqueInput!
+  update: RecipeItemUpdateWithoutRecipeDataInput!
+  create: RecipeItemCreateWithoutRecipeInput!
+}
+
+input RecipeItemWhereInput {
+  """Logical AND on all given filters."""
+  AND: [RecipeItemWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [RecipeItemWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [RecipeItemWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  quantity: Float
+
+  """All values that are not equal to given value."""
+  quantity_not: Float
+
+  """All values that are contained in given list."""
+  quantity_in: [Float!]
+
+  """All values that are not contained in given list."""
+  quantity_not_in: [Float!]
+
+  """All values less than the given value."""
+  quantity_lt: Float
+
+  """All values less than or equal the given value."""
+  quantity_lte: Float
+
+  """All values greater than the given value."""
+  quantity_gt: Float
+
+  """All values greater than or equal the given value."""
+  quantity_gte: Float
+  item: ItemWhereInput
+  recipe: RecipeWhereInput
+}
+
+input RecipeItemWhereUniqueInput {
+  id: ID
+}
+
+enum RecipeOrderByInput {
+  id_ASC
+  id_DESC
+  title_ASC
+  title_DESC
+  description_ASC
+  description_DESC
+  instructions_ASC
+  instructions_DESC
+}
+
+type RecipePreviousValues {
+  id: ID!
+  title: String!
+  description: String
+  instructions: String!
+}
+
+type RecipeSubscriptionPayload {
+  mutation: MutationType!
+  node: Recipe
+  updatedFields: [String!]
+  previousValues: RecipePreviousValues
+}
+
+input RecipeSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [RecipeSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [RecipeSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [RecipeSubscriptionWhereInput!]
+
+  """The subscription event gets dispatched when it's listed in mutation_in"""
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: RecipeWhereInput
+}
+
+input RecipeUpdateInput {
+  title: String
+  description: String
+  instructions: String
+  user: UserUpdateOneRequiredInput
+  ingredients: RecipeItemUpdateManyWithoutRecipeInput
+}
+
+input RecipeUpdateManyMutationInput {
+  title: String
+  description: String
+  instructions: String
+}
+
+input RecipeUpdateOneRequiredWithoutIngredientsInput {
+  create: RecipeCreateWithoutIngredientsInput
+  connect: RecipeWhereUniqueInput
+  update: RecipeUpdateWithoutIngredientsDataInput
+  upsert: RecipeUpsertWithoutIngredientsInput
+}
+
+input RecipeUpdateWithoutIngredientsDataInput {
+  title: String
+  description: String
+  instructions: String
+  user: UserUpdateOneRequiredInput
+}
+
+input RecipeUpsertWithoutIngredientsInput {
+  update: RecipeUpdateWithoutIngredientsDataInput!
+  create: RecipeCreateWithoutIngredientsInput!
+}
+
+input RecipeWhereInput {
+  """Logical AND on all given filters."""
+  AND: [RecipeWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [RecipeWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [RecipeWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  title: String
+
+  """All values that are not equal to given value."""
+  title_not: String
+
+  """All values that are contained in given list."""
+  title_in: [String!]
+
+  """All values that are not contained in given list."""
+  title_not_in: [String!]
+
+  """All values less than the given value."""
+  title_lt: String
+
+  """All values less than or equal the given value."""
+  title_lte: String
+
+  """All values greater than the given value."""
+  title_gt: String
+
+  """All values greater than or equal the given value."""
+  title_gte: String
+
+  """All values containing the given string."""
+  title_contains: String
+
+  """All values not containing the given string."""
+  title_not_contains: String
+
+  """All values starting with the given string."""
+  title_starts_with: String
+
+  """All values not starting with the given string."""
+  title_not_starts_with: String
+
+  """All values ending with the given string."""
+  title_ends_with: String
+
+  """All values not ending with the given string."""
+  title_not_ends_with: String
+  description: String
+
+  """All values that are not equal to given value."""
+  description_not: String
+
+  """All values that are contained in given list."""
+  description_in: [String!]
+
+  """All values that are not contained in given list."""
+  description_not_in: [String!]
+
+  """All values less than the given value."""
+  description_lt: String
+
+  """All values less than or equal the given value."""
+  description_lte: String
+
+  """All values greater than the given value."""
+  description_gt: String
+
+  """All values greater than or equal the given value."""
+  description_gte: String
+
+  """All values containing the given string."""
+  description_contains: String
+
+  """All values not containing the given string."""
+  description_not_contains: String
+
+  """All values starting with the given string."""
+  description_starts_with: String
+
+  """All values not starting with the given string."""
+  description_not_starts_with: String
+
+  """All values ending with the given string."""
+  description_ends_with: String
+
+  """All values not ending with the given string."""
+  description_not_ends_with: String
+  instructions: String
+
+  """All values that are not equal to given value."""
+  instructions_not: String
+
+  """All values that are contained in given list."""
+  instructions_in: [String!]
+
+  """All values that are not contained in given list."""
+  instructions_not_in: [String!]
+
+  """All values less than the given value."""
+  instructions_lt: String
+
+  """All values less than or equal the given value."""
+  instructions_lte: String
+
+  """All values greater than the given value."""
+  instructions_gt: String
+
+  """All values greater than or equal the given value."""
+  instructions_gte: String
+
+  """All values containing the given string."""
+  instructions_contains: String
+
+  """All values not containing the given string."""
+  instructions_not_contains: String
+
+  """All values starting with the given string."""
+  instructions_starts_with: String
+
+  """All values not starting with the given string."""
+  instructions_not_starts_with: String
+
+  """All values ending with the given string."""
+  instructions_ends_with: String
+
+  """All values not ending with the given string."""
+  instructions_not_ends_with: String
+  user: UserWhereInput
+  ingredients_every: RecipeItemWhereInput
+  ingredients_some: RecipeItemWhereInput
+  ingredients_none: RecipeItemWhereInput
+}
+
+input RecipeWhereUniqueInput {
+  id: ID
+}
+
 type Subscription {
   cartItem(where: CartItemSubscriptionWhereInput): CartItemSubscriptionPayload
-  item(where: ItemSubscriptionWhereInput): ItemSubscriptionPayload
+  recipe(where: RecipeSubscriptionWhereInput): RecipeSubscriptionPayload
+  recipeItem(where: RecipeItemSubscriptionWhereInput): RecipeItemSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  item(where: ItemSubscriptionWhereInput): ItemSubscriptionPayload
 }
 
 type User implements Node {
