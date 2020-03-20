@@ -1,5 +1,5 @@
 # source: https://us1.prisma.sh/kpvandivier-c3a1aa/recipe-market-backend/dev
-# timestamp: Wed Mar 18 2020 11:48:09 GMT-0700 (Pacific Daylight Time)
+# timestamp: Fri Mar 20 2020 13:19:29 GMT-0700 (Pacific Daylight Time)
 
 type AggregateCartItem {
   count: Int!
@@ -807,6 +807,8 @@ type Recipe implements Node {
   description: String
   instructions: String!
   ingredients(where: RecipeItemWhereInput, orderBy: RecipeItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [RecipeItem!]
+  image: String!
+  largeImage: String!
 }
 
 """A connection to a list of items."""
@@ -824,6 +826,8 @@ input RecipeCreateInput {
   title: String!
   description: String
   instructions: String!
+  image: String!
+  largeImage: String!
   user: UserCreateOneInput!
   ingredients: RecipeItemCreateManyWithoutRecipeInput
 }
@@ -838,6 +842,8 @@ input RecipeCreateWithoutIngredientsInput {
   title: String!
   description: String
   instructions: String!
+  image: String!
+  largeImage: String!
   user: UserCreateOneInput!
 }
 
@@ -1151,6 +1157,10 @@ enum RecipeOrderByInput {
   description_DESC
   instructions_ASC
   instructions_DESC
+  image_ASC
+  image_DESC
+  largeImage_ASC
+  largeImage_DESC
 }
 
 type RecipePreviousValues {
@@ -1158,6 +1168,8 @@ type RecipePreviousValues {
   title: String!
   description: String
   instructions: String!
+  image: String!
+  largeImage: String!
 }
 
 type RecipeSubscriptionPayload {
@@ -1201,6 +1213,8 @@ input RecipeUpdateInput {
   title: String
   description: String
   instructions: String
+  image: String
+  largeImage: String
   user: UserUpdateOneRequiredInput
   ingredients: RecipeItemUpdateManyWithoutRecipeInput
 }
@@ -1209,6 +1223,8 @@ input RecipeUpdateManyMutationInput {
   title: String
   description: String
   instructions: String
+  image: String
+  largeImage: String
 }
 
 input RecipeUpdateOneRequiredWithoutIngredientsInput {
@@ -1222,6 +1238,8 @@ input RecipeUpdateWithoutIngredientsDataInput {
   title: String
   description: String
   instructions: String
+  image: String
+  largeImage: String
   user: UserUpdateOneRequiredInput
 }
 
@@ -1399,6 +1417,86 @@ input RecipeWhereInput {
 
   """All values not ending with the given string."""
   instructions_not_ends_with: String
+  image: String
+
+  """All values that are not equal to given value."""
+  image_not: String
+
+  """All values that are contained in given list."""
+  image_in: [String!]
+
+  """All values that are not contained in given list."""
+  image_not_in: [String!]
+
+  """All values less than the given value."""
+  image_lt: String
+
+  """All values less than or equal the given value."""
+  image_lte: String
+
+  """All values greater than the given value."""
+  image_gt: String
+
+  """All values greater than or equal the given value."""
+  image_gte: String
+
+  """All values containing the given string."""
+  image_contains: String
+
+  """All values not containing the given string."""
+  image_not_contains: String
+
+  """All values starting with the given string."""
+  image_starts_with: String
+
+  """All values not starting with the given string."""
+  image_not_starts_with: String
+
+  """All values ending with the given string."""
+  image_ends_with: String
+
+  """All values not ending with the given string."""
+  image_not_ends_with: String
+  largeImage: String
+
+  """All values that are not equal to given value."""
+  largeImage_not: String
+
+  """All values that are contained in given list."""
+  largeImage_in: [String!]
+
+  """All values that are not contained in given list."""
+  largeImage_not_in: [String!]
+
+  """All values less than the given value."""
+  largeImage_lt: String
+
+  """All values less than or equal the given value."""
+  largeImage_lte: String
+
+  """All values greater than the given value."""
+  largeImage_gt: String
+
+  """All values greater than or equal the given value."""
+  largeImage_gte: String
+
+  """All values containing the given string."""
+  largeImage_contains: String
+
+  """All values not containing the given string."""
+  largeImage_not_contains: String
+
+  """All values starting with the given string."""
+  largeImage_starts_with: String
+
+  """All values not starting with the given string."""
+  largeImage_not_starts_with: String
+
+  """All values ending with the given string."""
+  largeImage_ends_with: String
+
+  """All values not ending with the given string."""
+  largeImage_not_ends_with: String
   user: UserWhereInput
   ingredients_every: RecipeItemWhereInput
   ingredients_some: RecipeItemWhereInput

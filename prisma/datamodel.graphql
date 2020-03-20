@@ -42,6 +42,8 @@ type Recipe {
   description: String
   instructions: String!
   ingredients: [RecipeItem!]!
+  image: String!
+  largeImage: String!
 }
 
 type RecipeItem {
