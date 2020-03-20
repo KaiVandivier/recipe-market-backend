@@ -32,7 +32,10 @@ const Mutation = {
     if (!ctx.request.userId) throw new Error("You must be logged in");
     // Get user and item
     const { user } = ctx.request;
-    const item = await ctx.db.query.item({ where: { id: args.id } }, `{ user { id } }`);
+    const item = await ctx.db.query.item(
+      { where: { id: args.id } },
+      `{ user { id } }`
+    );
     // Check permissions
     const permissionsMatched = user.permissions.some(permission =>
       ["ADMIN", "ITEM_UPDATE"].includes(permission)
@@ -236,32 +239,79 @@ const Mutation = {
     });
     // if the user already has a cart item, increment the quantity
     if (existingCartItem) {
-      return ctx.db.mutation.updateCartItem({
-        where: { id: existingCartItem.id },
-        data: { quantity: existingCartItem.quantity + quantity }
-      }, info);
+      return ctx.db.mutation.updateCartItem(
+        {
+          where: { id: existingCartItem.id },
+          data: { quantity: existingCartItem.quantity + quantity }
+        },
+        info
+      );
     }
 
     // If not, Make the CartItem for the user
-    return ctx.db.mutation.createCartItem({
-      data: {
-        quantity,
-        item: { connect: { id: itemId } },
-        user: { connect: { id: ctx.request.userId } }
-      }
-    }, info);
+    return ctx.db.mutation.createCartItem(
+      {
+        data: {
+          quantity,
+          item: { connect: { id: itemId } },
+          user: { connect: { id: ctx.request.userId } }
+        }
+      },
+      info
+    );
   },
 
   async removeFromCart(_, { id }, ctx, info) {
     // Check to see if the user is logged in
-    if (!ctx.request.userId) throw new Error("You must be logged in to do that!");
+    if (!ctx.request.userId)
+      throw new Error("You must be logged in to do that!");
     // Check if cart item exists
-    const cartItem = await ctx.db.query.cartItem({ where: { id }}, `{ id user { id } }`);
+    const cartItem = await ctx.db.query.cartItem(
+      { where: { id } },
+      `{ id user { id } }`
+    );
     if (!cartItem) throw new Error("That item doesn't exist!");
     // Check if user owns that item
-    if (cartItem.user.id !== ctx.request.userId) throw new Error("You can't do that!");
+    if (cartItem.user.id !== ctx.request.userId)
+      throw new Error("You can't do that!");
     // If all is good, hit DB
-    return ctx.db.mutation.deleteCartItem({ where: { id }}, info);
+    return ctx.db.mutation.deleteCartItem({ where: { id } }, info);
+  },
+
+  async createRecipe(
+    _,
+    { title, description, instructions, ingredients, image, largeImage },
+    ctx,
+    info
+  ) {
+    // Check if everything is good:
+    // User logged in?
+    if (!ctx.request.userId) throw new Error("You must be logged in!");
+    // Items exist? Maybe this is already handled at other steps
+    // Check permissions? TODO: More specific permissions
+    checkPermissions(ctx.request.user, ["ADMIN", "ITEM_CREATE"]);
+    // The DB step:
+    const res = await ctx.db.mutation.createRecipe(
+      {
+        data: {
+          title,
+          description,
+          instructions,
+          image,
+          largeImage,
+          user: { connect: { id: ctx.request.userId } },
+          ingredients: {
+            create: ingredients.map(({ id, quantity }) => ({
+              item: { connect: { id } },
+              quantity
+            }))
+          }
+        }
+      },
+      info
+    );
+    console.log(res);
+    return res;
   }
 };
 

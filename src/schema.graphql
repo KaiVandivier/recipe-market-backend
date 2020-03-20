@@ -12,6 +12,11 @@ type User {
   cart: [CartItem!]!
 }
 
+input RecipeItemCreateInput {
+  id: ID!
+  quantity: Float!
+}
+
 type Query {
   user(id: ID!): User
   users: [User]!
@@ -33,4 +38,5 @@ type Mutation {
   updatePermissions(id: ID!, permissions: [Permission]!): User!
   addToCart(itemId: ID!, quantity: Int = 1): CartItem!
   removeFromCart(id: ID!): CartItem
+  createRecipe(title: String!, description: String, instructions: String!, ingredients: [RecipeItemCreateInput!]!, image: String!, largeImage: String!): Recipe
 }
