@@ -368,6 +368,23 @@ const Mutation = {
       },
       info
     );
+  },
+
+  async deleteRecipe(_, { id }, ctx, info) {
+    // check if user is logged in
+    if (!ctx.request.userId) throw new Error("You must be logged in to do that!");
+    // query recipe
+    const recipe = await ctx.db.query.recipe({ where: { id }}, `{ id user { id }}`)
+    // check if recipe exists
+    if (!recipe) throw new Error("Oops, that recipe doesn't exist");
+    // check if user has correct permissions
+    const userOwnsRecipe = recipe.user.id === ctx.request.userId;
+    const userHasPermission = checkPermissions(ctx.request.user, ["ADMIN", "ITEM_DELETE"]);
+    if (!userOwnsRecipe && !userHasPermission) throw new Error("You don't have permission to do that!");    
+    // delete recipeItems
+    const deletedItems = await ctx.db.mutation.deleteManyRecipeItems({ where: { recipe: { id }}})
+    // delete recipe & return
+    return ctx.db.mutation.deleteRecipe({ where: { id } }, info)
   }
 };
 

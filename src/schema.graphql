@@ -90,4 +90,5 @@ type Mutation {
     image: String
     largeImage: String
   ): Recipe!
+  deleteRecipe(id: ID!): Recipe!
 }
