@@ -21,13 +21,48 @@ type Query {
   user(id: ID!): User
   users: [User]!
   item(where: ItemWhereUniqueInput!): Item
-  items(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, first: Int): [Item]!
-  itemsConnection(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ItemConnection!
+  items(
+    where: ItemWhereInput
+    orderBy: ItemOrderByInput
+    skip: Int
+    first: Int
+  ): [Item]!
+  itemsConnection(
+    where: ItemWhereInput
+    orderBy: ItemOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): ItemConnection!
+  recipe(where: RecipeWhereUniqueInput!): Recipe
+  recipes(
+    where: RecipeWhereInput
+    orderBy: RecipeOrderByInput
+    skip: Int
+    first: Int
+  ): [Recipe]!
+  recipesConnection(
+    where: RecipeWhereInput
+    orderBy: RecipeOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): RecipeConnection!
   currentUser: User
 }
 
 type Mutation {
-  createItem(title: String!, description: String!, price: Int!, image: String!, largeImage: String!): Item!
+  createItem(
+    title: String!
+    description: String!
+    price: Int!
+    image: String!
+    largeImage: String!
+  ): Item!
   editItem(id: ID!, title: String, description: String, price: Int): Item!
   deleteItem(id: ID!): Item
   createUser(name: String!, email: String!, password: String!): User!
@@ -38,5 +73,21 @@ type Mutation {
   updatePermissions(id: ID!, permissions: [Permission]!): User!
   addToCart(itemId: ID!, quantity: Int = 1): CartItem!
   removeFromCart(id: ID!): CartItem
-  createRecipe(title: String!, description: String, instructions: String!, ingredients: [RecipeItemCreateInput!]!, image: String!, largeImage: String!): Recipe
+  createRecipe(
+    title: String!
+    description: String
+    instructions: String!
+    ingredients: [RecipeItemCreateInput!]!
+    image: String!
+    largeImage: String!
+  ): Recipe!
+  editRecipe(
+    id: ID!
+    title: String
+    description: String
+    instructions: String
+    ingredients: [RecipeItemCreateInput!]
+    image: String
+    largeImage: String
+  ): Recipe!
 }

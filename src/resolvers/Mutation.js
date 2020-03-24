@@ -278,20 +278,25 @@ const Mutation = {
     return ctx.db.mutation.deleteCartItem({ where: { id } }, info);
   },
 
-  async createRecipe(
-    _,
-    { title, description, instructions, ingredients, image, largeImage },
-    ctx,
-    info
-  ) {
+  async createRecipe(_, args, ctx, info) {
+    const {
+      title,
+      description,
+      instructions,
+      ingredients,
+      image,
+      largeImage
+    } = args;
     // Check if everything is good:
     // User logged in?
     if (!ctx.request.userId) throw new Error("You must be logged in!");
     // Items exist? Maybe this is already handled at other steps
     // Check permissions? TODO: More specific permissions
     checkPermissions(ctx.request.user, ["ADMIN", "ITEM_CREATE"]);
+    if (ingredients.length < 1)
+      throw new Error("You must add some ingredients to this recipe!");
     // The DB step:
-    const res = await ctx.db.mutation.createRecipe(
+    return ctx.db.mutation.createRecipe(
       {
         data: {
           title,
@@ -310,8 +315,59 @@ const Mutation = {
       },
       info
     );
-    console.log(res);
-    return res;
+  },
+
+  async editRecipe(_, args, ctx, info) {
+    // Destructure args
+    const {
+      id,
+      title,
+      description,
+      instructions,
+      ingredients,
+      image,
+      largeImage
+    } = args;
+
+    // User logged in?
+    if (!ctx.request.userId) throw new Error("You must be logged in!");
+
+    // Check permissions? TODO: More specific permissions
+    checkPermissions(ctx.request.user, ["ADMIN", "ITEM_UPDATE"]);
+
+    // TODO: Validate info: ingredients.length > 1? Anything else?
+    if (ingredients.length < 1)
+      throw new Error("You must add some ingredients to this recipe!");
+
+    // Query the existing ingredients
+    const existingRecipe = await ctx.db.query.recipe(
+      { where: { id } },
+      `{ ingredients { id } }`
+    );
+    const deleteInputs = existingRecipe.ingredients.map(({ id }) => ({ id }));
+
+    // The DB step:
+    return ctx.db.mutation.updateRecipe(
+      {
+        where: { id },
+        data: {
+          title,
+          description,
+          instructions,
+          image,
+          largeImage,
+          // user: { connect: { id: ctx.request.userId } },
+          ingredients: {
+            delete: deleteInputs,
+            create: ingredients.map(({ id, quantity }) => ({
+              item: { connect: { id } },
+              quantity
+            }))
+          }
+        }
+      },
+      info
+    );
   }
 };
 
