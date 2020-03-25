@@ -433,7 +433,7 @@ const Mutation = {
                   existingCartItem.quantity + ingredient.quantity * quantity
               }
             },
-            `{ id quantity item { title } }`
+            info
           );
         }
         // If not, Make the CartItem for the user
@@ -445,16 +445,12 @@ const Mutation = {
               user: { connect: { id: ctx.request.userId } }
             }
           },
-          `{ id quantity item { title } }`
+          info
         );
         // (Cart item quantity = recipe qty * ingredient qty)
       })
     );
-
-    // TODO: return [CartItem!] from
-    console.log(newCartItems);
-    // Return `BatchPayload` count?
-    return { message: `Items added to cart!` };
+    return newCartItems;
   }
 };
 
