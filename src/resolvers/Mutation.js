@@ -372,19 +372,89 @@ const Mutation = {
 
   async deleteRecipe(_, { id }, ctx, info) {
     // check if user is logged in
-    if (!ctx.request.userId) throw new Error("You must be logged in to do that!");
+    if (!ctx.request.userId)
+      throw new Error("You must be logged in to do that!");
     // query recipe
-    const recipe = await ctx.db.query.recipe({ where: { id }}, `{ id user { id }}`)
+    const recipe = await ctx.db.query.recipe(
+      { where: { id } },
+      `{ id user { id }}`
+    );
     // check if recipe exists
     if (!recipe) throw new Error("Oops, that recipe doesn't exist");
     // check if user has correct permissions
     const userOwnsRecipe = recipe.user.id === ctx.request.userId;
-    const userHasPermission = checkPermissions(ctx.request.user, ["ADMIN", "ITEM_DELETE"]);
-    if (!userOwnsRecipe && !userHasPermission) throw new Error("You don't have permission to do that!");    
+    const userHasPermission = checkPermissions(ctx.request.user, [
+      "ADMIN",
+      "ITEM_DELETE"
+    ]);
+    if (!userOwnsRecipe && !userHasPermission)
+      throw new Error("You don't have permission to do that!");
     // delete recipeItems
-    const deletedItems = await ctx.db.mutation.deleteManyRecipeItems({ where: { recipe: { id }}})
+    const deletedItems = await ctx.db.mutation.deleteManyRecipeItems({
+      where: { recipe: { id } }
+    });
     // delete recipe & return
-    return ctx.db.mutation.deleteRecipe({ where: { id } }, info)
+    return ctx.db.mutation.deleteRecipe({ where: { id } }, info);
+  },
+
+  async addRecipeToCart(_, { id, quantity }, ctx, info) {
+    // Check if user is logged in
+    if (!ctx.request.userId) throw new Error("You must be logged in!");
+
+    // Check if recipe exists
+    const recipe = await ctx.db.query.recipe(
+      { where: { id } },
+      `{ ingredients { id quantity item { id } } }`
+    );
+    if (!recipe) throw new Error("Uh oh! That recipe doesn't exist");
+
+    // For each recipe ingredient...
+    // Is this gonna work with a bunch of returned promises? 
+      // --> Use `await Promise.all()`
+    const newCartItems = await Promise.all(
+      recipe.ingredients.map(async ingredient => {
+        // TODO: Convert this to `upsert`?
+        // Problem: we need to acquire the existing quantity somehow to add it up
+
+        // Check to see if a cart item already exists for this user and item
+        const [existingCartItem] = await ctx.db.query.cartItems({
+          where: {
+            user: { id: ctx.request.userId },
+            item: { id: ingredient.item.id }
+          }
+        });
+        // if the user already has a cart item, increment the quantity
+        if (existingCartItem) {
+          return ctx.db.mutation.updateCartItem(
+            {
+              where: { id: existingCartItem.id },
+              data: {
+                quantity:
+                  existingCartItem.quantity + ingredient.quantity * quantity
+              }
+            },
+            `{ id quantity item { title } }`
+          );
+        }
+        // If not, Make the CartItem for the user
+        return ctx.db.mutation.createCartItem(
+          {
+            data: {
+              quantity: ingredient.quantity * quantity,
+              item: { connect: { id: ingredient.item.id } },
+              user: { connect: { id: ctx.request.userId } }
+            }
+          },
+          `{ id quantity item { title } }`
+        );
+        // (Cart item quantity = recipe qty * ingredient qty)
+      })
+    );
+
+    // TODO: return [CartItem!] from
+    console.log(newCartItems);
+    // Return `BatchPayload` count?
+    return { message: `Items added to cart!` };
   }
 };
 
