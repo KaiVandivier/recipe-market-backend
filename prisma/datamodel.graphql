@@ -30,7 +30,7 @@ type Item {
 
 type CartItem {
   id: ID! @id
-  quantity: Int! @default(value: 1)
+  quantity: Float! @default(value: 1)
   item: Item
   user: User!
 }
