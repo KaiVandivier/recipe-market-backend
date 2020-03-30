@@ -1,10 +1,12 @@
 const { GraphQLServer } = require("graphql-yoga");
 const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const Query = require("./resolvers/Query");
 const Mutation = require("./resolvers/Mutation");
 const db = require("./db");
+const { handleCheckoutSessionCompleted } = require("./webhookHandlers");
 
 const server = new GraphQLServer({
   typeDefs: "src/schema.graphql",
@@ -28,6 +30,39 @@ server.express.use(async (req, res, next) => {
     req.user = user;
   }
   next();
+});
+
+// Endpoint to catch webhooks (notice `post`)
+// Note: the boilerplate from the Stripe docs use `bodyParser.raw()`,
+// and my own testing shows `bodyParser.json()` works too with one less step (omitting the later `JSON.parse()` step)
+// I'm not sure why `raw` is used, but maybe it's relevant
+server.express.post("/webhooks", bodyParser.raw({ type: "application/json" }), async (req, res, next) => {
+  let event;
+  try {
+    event = JSON.parse(req.body);
+  } catch (err) {
+    res.status(400).send(`Webhook error: ${err.message}`)
+  }
+  
+  // handle webhook here
+  switch (event.type) {
+    case "payment_intent.created":
+      console.log("payment intent created:");
+      console.log(event.data.object);
+      break;
+    case "checkout.session.completed":
+      console.log("checkout session completed:");
+      const checkoutSession = event.data.object;
+      console.log(checkoutSession);
+      console.log(checkoutSession.display_items);
+      // handleCheckoutSessionCompleted(checkoutSession, db);
+      break;
+    default:
+      // unexpected event type
+      return res.status(400).end();
+  }
+
+  res.status(200).send();
 })
 
 server.start({ cors: {
