@@ -4,6 +4,10 @@ type SuccessMessage {
   message: String
 }
 
+type CheckoutSession {
+  sessionId: String
+}
+
 type User {
   id: ID!
   name: String!
@@ -92,4 +96,5 @@ type Mutation {
   ): Recipe!
   deleteRecipe(id: ID!): Recipe!
   addRecipeToCart(id: ID!, quantity: Int = 1): [CartItem!]!
+  checkout: CheckoutSession!
 }

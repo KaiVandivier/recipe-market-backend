@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { randomBytes } = require("crypto");
 const { promisify } = require("util");
+const stripe = require("stripe")(process.env.STRIPE_SECRET);
 const { transport, mailTemplate } = require("../mail");
 const { checkPermissions } = require("../utils");
 
@@ -409,8 +410,8 @@ const Mutation = {
     if (!recipe) throw new Error("Uh oh! That recipe doesn't exist");
 
     // For each recipe ingredient...
-    // Is this gonna work with a bunch of returned promises? 
-      // --> Use `await Promise.all()`
+    // Is this gonna work with a bunch of returned promises?
+    // --> Use `await Promise.all()`
     const newCartItems = await Promise.all(
       recipe.ingredients.map(async ingredient => {
         // TODO: Convert this to `upsert`?
@@ -451,6 +452,40 @@ const Mutation = {
       })
     );
     return newCartItems;
+  },
+
+  async checkout(_, args, ctx, info) {
+    // Make sure user is logged in
+    if (!ctx.request.userId) throw new Error("You must be logged in!");
+    // Query the user's cart
+    const user = await ctx.db.query.user(
+      { where: { id: ctx.request.userId } },
+      `{ id email cart { id quantity item { title description image price } } }`
+    );
+    // Make a list of line items 
+    // (note that some object keys are different from our API)
+    const lineItems = user.cart.map(({ item, quantity }) => ({
+      name: item.title,
+      description: item.description,
+      images: [item.image],
+      amount: item.price,
+      currency: "usd",
+      // Handle fractional quantities at this point:
+      quantity: Math.ceil(quantity)
+    }));
+    console.log(lineItems);
+
+    // Invoke stripe to make a session
+    const session = await stripe.checkout.sessions.create({
+      customer_email: user.email,
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      success_url:
+        `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/cancel`
+    });
+    console.log(session);
+    return { sessionId: session.id };
   }
 };
 
