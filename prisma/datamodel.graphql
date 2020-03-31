@@ -58,7 +58,7 @@ type Order {
   items: [OrderItem!]!
   total: Int!
   user: User!
-  checkoutSessionId: String!
+  checkoutSessionId: String! @unique
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
 }
