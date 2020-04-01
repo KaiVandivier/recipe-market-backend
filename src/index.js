@@ -46,16 +46,9 @@ server.express.post("/webhooks", bodyParser.raw({ type: "application/json" }), a
   
   // handle webhook here
   switch (event.type) {
-    case "payment_intent.created":
-      console.log("payment intent created:");
-      console.log(event.data.object);
-      break;
     case "checkout.session.completed":
-      console.log("checkout session completed:");
       const checkoutSession = event.data.object;
-      console.log(checkoutSession);
-      console.log(checkoutSession.display_items);
-      // handleCheckoutSessionCompleted(checkoutSession, db);
+      handleCheckoutSessionCompleted(checkoutSession, db);
       break;
     default:
       // unexpected event type
