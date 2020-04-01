@@ -16,8 +16,7 @@ async function handleCheckoutSessionCompleted(checkoutSession, db) {
       price: item.amount
     };
   });
-  console.log("Order items:");
-  console.log(orderItems);
+  
   const orderTotal = orderItems.reduce(
     (sum, { price, quantity }) => sum + price * quantity,
     0
