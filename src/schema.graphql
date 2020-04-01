@@ -56,6 +56,25 @@ type Query {
     first: Int
     last: Int
   ): RecipeConnection!
+  orders(
+    where: OrderWhereInput
+    orderBy: OrderOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): [Order]!
+  order(where: OrderWhereUniqueInput!): Order
+  ordersConnection(
+    where: OrderWhereInput
+    orderBy: OrderOrderByInput
+    skip: Int
+    after: String
+    before: String
+    first: Int
+    last: Int
+  ): OrderConnection!
   currentUser: User
 }
 
