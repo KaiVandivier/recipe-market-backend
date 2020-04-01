@@ -8,6 +8,9 @@ const Query = {
   recipe: forwardTo("db"),
   recipes: forwardTo("db"),
   recipesConnection: forwardTo("db"),
+  order: forwardTo("db"),
+  orders: forwardTo("db"),
+  ordersConnection: forwardTo("db"),
   user(_, { id }, ctx, info) {
     return ctx.db.query.user({
       where: { id }
