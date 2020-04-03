@@ -8,9 +8,6 @@ const Query = {
   recipe: forwardTo("db"),
   recipes: forwardTo("db"),
   recipesConnection: forwardTo("db"),
-  order: forwardTo("db"),
-  orders: forwardTo("db"),
-  ordersConnection: forwardTo("db"),
   user(_, { id }, ctx, info) {
     return ctx.db.query.user(
       {
@@ -48,6 +45,39 @@ const Query = {
       },
       info
     );
+  },
+  async order(_, { where }, ctx, info) {
+    console.log(where);
+    // check if user is logged in
+    if (!ctx.request.userId) throw new Error("You must be logged in!");
+    // get user and order
+    const { user } = ctx.request;
+    const order = await ctx.db.query.order({ where }, `{ id user { id }}`);
+    if (!order) throw new Error(`An order was not found with those query terms.`);
+    // check if user has correct privileges
+    const permissionsMatched = user.permissions.some(permission =>
+      ["ADMIN"].includes(permission)
+    );
+    const userOwnsOrder = order.user.id === ctx.request.userId;
+    if (!userOwnsOrder && !permissionsMatched) throw new Error("Sorry! You don't have permission to do that.");
+    // return queried values
+    return ctx.db.query.order({ where }, info);
+  },
+  orders(_, args, ctx, info) {
+    // check if user is logged in
+    if (!ctx.request.userId) throw new Error("You must be logged in!");
+    // check if user has correct privileges
+    checkPermissions(ctx.request.user, ["ADMIN"]);
+    // query the DB
+    return ctx.db.query.orders({ ...args }, info);
+  },
+  ordersConnection(_, args, ctx, info) {
+    // check if user is logged in
+    if (!ctx.request.userId) throw new Error("You must be logged in!");
+    // check if user has correct privileges
+    checkPermissions(ctx.request.user, ["ADMIN"]);
+    // query the DB
+    return ctx.db.query.orders({ ...args }, info);
   }
 };
 
