@@ -76,6 +76,7 @@ type Query {
     last: Int
   ): OrderConnection!
   currentUser: User
+  myOrders: [Order!]
 }
 
 type Mutation {
