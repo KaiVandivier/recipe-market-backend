@@ -99,7 +99,7 @@ const Mutation = {
       info
     );
     // Make & sign a jwt for the user; add as cookie
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET);
     // add jwt to cookie on ctx.response.cookies
     ctx.response.cookie("token", token, {
       httpOnly: true,
@@ -126,7 +126,7 @@ const Mutation = {
     // Hit DB to search for email/password combo?
     if (!passwordMatch) throw new Error("Incorrect password.");
     // If successful, sign JWT and set cookie
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET);
     ctx.response.cookie("token", token, {
       httpOnly: true,
       maxAge: 365 * 24 * 60 * 60 * 1000
@@ -203,7 +203,7 @@ const Mutation = {
       info
     );
     // Log them in with a JWT and a cookie
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ userId: user.id }, process.env.APP_SECRET);
     ctx.response.cookie("token", token, {
       httpOnly: true,
       maxAge: 365 * 24 * 60 * 60 * 1000
@@ -228,14 +228,14 @@ const Mutation = {
     return user;
   },
 
-  async addToCart(_, { itemId, quantity }, ctx, info) {
+  async addItemToCart(_, { id, quantity }, ctx, info) {
     // Check if user is logged in
     if (!ctx.request.user) throw new Error("You must be logged in!");
     // Check to see if a cart item already exists for this user and item
     const [existingCartItem] = await ctx.db.query.cartItems({
       where: {
         user: { id: ctx.request.userId },
-        item: { id: itemId }
+        item: { id }
       }
     });
     // if the user already has a cart item, increment the quantity
@@ -254,7 +254,7 @@ const Mutation = {
       {
         data: {
           quantity,
-          item: { connect: { id: itemId } },
+          item: { connect: { id } },
           user: { connect: { id: ctx.request.userId } }
         }
       },
