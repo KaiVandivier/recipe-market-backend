@@ -95,7 +95,7 @@ type Mutation {
   requestPasswordReset(email: String!): SuccessMessage
   resetPassword(resetToken: String!, password: String!): User! #confirm password?
   updatePermissions(id: ID!, permissions: [Permission]!): User!
-  addToCart(itemId: ID!, quantity: Int = 1): CartItem!
+  addItemToCart(id: ID!, quantity: Float = 1): CartItem!
   removeFromCart(id: ID!): CartItem
   createRecipe(
     title: String!
@@ -115,6 +115,6 @@ type Mutation {
     largeImage: String
   ): Recipe!
   deleteRecipe(id: ID!): Recipe!
-  addRecipeToCart(id: ID!, quantity: Int = 1): [CartItem!]!
+  addRecipeToCart(id: ID!, quantity: Float = 1): [CartItem!]!
   checkout: CheckoutSession!
 }
