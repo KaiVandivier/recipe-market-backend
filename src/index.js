@@ -24,7 +24,7 @@ server.express.use(cookieParser());
 server.express.use(async (req, res, next) => {
   const { token } = req.cookies;
   if (token) {
-    const { userId } = jwt.verify(token, process.env.JWT_SECRET);
+    const { userId } = jwt.verify(token, process.env.APP_SECRET);
     const user = await db.query.user({ where: { id: userId } }, `{ id, permissions, email, name }`);
     req.userId = userId;
     req.user = user;
