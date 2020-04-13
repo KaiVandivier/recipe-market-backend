@@ -1,5 +1,7 @@
-endpoint: https://us1.prisma.sh/kpvandivier-c3a1aa/recipe-market-backend/dev
+#endpoint: https://us1.prisma.sh/kpvandivier-c3a1aa/recipe-market-backend/dev
+endpoint: https://rm-backend-79754fe1e2.herokuapp.com/recipe-market-prod/prod
 datamodel: datamodel.graphql
+secret: ${env:PRISMA_SECRET}
 hooks:
   post-deploy:
     - graphql get-schema -p prisma
