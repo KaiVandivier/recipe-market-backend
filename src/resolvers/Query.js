@@ -47,7 +47,7 @@ const Query = {
     );
   },
   async order(_, { where }, ctx, info) {
-    console.log(where);
+    console.log("order queried:", where);
     // check if user is logged in
     if (!ctx.request.userId) throw new Error("You must be logged in!");
     // get user and order
